@@ -112,7 +112,10 @@ class Blis(Package):
     @run_after('build')
     @on_package_attributes(run_tests=True)
     def check(self):
-        make('check')
+        make('checkblis-fast')
+
+        if '+blas' in self.spec:
+            make('checkblas')
 
     def install(self, spec, prefix):
         make('install')
