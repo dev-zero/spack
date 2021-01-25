@@ -607,6 +607,11 @@ class Compiler(object):
                 # See: https://github.com/spack/spack/issues/3153
                 if os.environ.get("CRAY_CPU_TARGET") == 'mic-knl':
                     spack.util.module_cmd.load_module('cce')
+
+                available_modules = spack.util.module_cmd.module('avail', module)
+                if not available_modules or module not in available_modules:
+                    raise InvalidCompilerModuleError(self, module)
+
                 spack.util.module_cmd.load_module(module)
 
             # apply other compiler environment changes
@@ -635,6 +640,13 @@ class InvalidCompilerError(spack.error.SpackError):
     def __init__(self):
         super(InvalidCompilerError, self).__init__(
             "Compiler has no executables.")
+
+
+class InvalidCompilerModuleError(spack.error.SpackError):
+    def __init__(self, compiler, module):
+        msg = "Module specified for compiler '%s' not found: %s" % (
+              compiler.spec, module)
+        super(InvalidCompilerModuleError, self).__init__(msg)
 
 
 class UnsupportedCompilerFlag(spack.error.SpackError):
